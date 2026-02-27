@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>حسنائي — A Living Sky of Memories</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* =========================================
+           1. DESIGN TOKENS (المتغيرات اللونية)
+           ========================================= */
+        :root {
+            --bg-deep: #030005;
+            --purple-glow: rgba(43, 14, 66, 0.6);
+            --rose-glow: rgba(224, 153, 169, 0.2);
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8f8f8;
+            --text-dim: #d1c9d4;
+            --accent-color: #e6a8b6;
+        }
+
+        /* =========================================
+           2. GLOBAL RESET & TYPOGRAPHY
+           ========================================= */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow-x: hidden;
+            line-height: 1.8;
+            transition: background-color 3s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* =========================================
+           3. SKY ENVIRONMENT (السماء والنجوم)
+           ========================================= */
+        #sky-canvas {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: radial-gradient(circle at 50% 30%, var(--purple-glow) 0%, transparent 70%);
+            z-index: 0; pointer-events: none;
+        }
+
+        .star { 
+            position: absolute; background: #fff; border-radius: 50%; 
+            animation: twinkle infinite alternate ease-in-out; 
+        }
+        @keyframes twinkle { 
+            0% { opacity: 0.2; transform: scale(0.8); } 
+            100% { opacity: 0.8; transform: scale(1.2); } 
+        }
+
+        .shooting-star {
+            position: absolute; width: 1px; height: 60px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.8));
+            animation: shooting 2.5s linear forwards; opacity: 0;
+        }
+        @keyframes shooting { 
+            0% { transform: translateY(-50vh) rotate(45deg); opacity: 1; } 
+            100% { transform: translateY(100vh) rotate(45deg); opacity: 0; } 
+        }
+
+        /* =========================================
+           4. AUTHENTICATION PORTAL (بوابة الدخول)
+           ========================================= */
+        #auth-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--bg-deep); z-index: 100;
+            transition: opacity 2s ease, visibility 2s; padding: 20px; text-align: center;
+        }
+
+        .auth-text { font-size: 1.1rem; color: var(--text-dim); margin-bottom: 2rem; font-weight: 300; }
+
+        #password-input {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            color: #fff; padding: 18px 30px; border-radius: 40px;
+            font-family: inherit; font-size: 1rem; text-align: center;
+            outline: none; backdrop-filter: blur(10px); transition: 0.4s ease; width: 100%; max-width: 300px;
+        }
+        #password-input:focus { border-color: var(--accent-color); box-shadow: 0 0 20px var(--rose-glow); }
+
+        .shake { animation: shake 0.4s ease-in-out; }
+        @keyframes shake { 
+            0%, 100% { transform: translateX(0); } 
+            25% { transform: translateX(-8px); border-color: #ff4d4d; } 
+            75% { transform: translateX(8px); border-color: #ff4d4d; } 
+        }
+
+        #welcome-name {
+            display: none; font-size: 2.5rem; font-weight: 500; letter-spacing: 2px;
+            color: var(--accent-color); text-shadow: 0 0 20px var(--rose-glow); 
+            animation: fadeInOut 4s forwards ease-in-out;
+        }
+        @keyframes fadeInOut { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* =========================================
+           5. SECRET VOICE STAR (النجمة السرية)
+           ========================================= */
+        #secret-star-wrapper {
+            position: fixed; top: 25px; right: 25px; 
+            display: flex; flex-direction: column; align-items: center; gap: 8px;
+            cursor: pointer; z-index: 100; transition: transform 0.4s ease;
+        }
+        #secret-star {
+            width: 12px; height: 12px; background: #fff; border-radius: 50%;
+            box-shadow: 0 0 15px 4px rgba(255,255,255,0.7);
+            animation: pulseStar 2s infinite alternate ease-in-out; transition: background 0.4s ease;
+        }
+
+
+        .secret-label {
+            font-size: 0.75rem; color: var(--accent-color); font-weight: 300;
+            letter-spacing: 1px; opacity: 0; /* جعلناها مخفية */
+            transition: opacity 2s ease; /* تأثير ظهور ناعم جداً */
+            pointer-events: none;
+        }
+        .secret-label.show {
+            opacity: 0.8;
+            animation: pulseStar 2s infinite alternate ease-in-out;
+        }
+
+
+
+        #secret-star-wrapper:hover { transform: scale(1.1); }
+        #secret-star-wrapper:hover #secret-star { background: var(--accent-color); box-shadow: 0 0 25px 8px var(--accent-color); }
+        @keyframes pulseStar { 0% { opacity: 0.4; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1.1); } }
+
+        /* =========================================
+           6. MAIN LAYOUT (الهيكل الرئيسي)
+           ========================================= */
+        #main-experience {
+            position: relative; z-index: 10; display: none;
+            max-width: 650px; margin: 0 auto; 
+            /* المساحة العلوية تضمن عدم تداخل المحتوى مع النجمة الثابتة */
+            padding: 110px 25px 60px; 
+            opacity: 0; transition: opacity 2s ease;
+        }
+
+        .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 1s ease, transform 1s ease; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+        /* =========================================
+           7. UI COMPONENTS (المكونات البصرية)
+           ========================================= */
+        
+        /* Reassurance Card */
+        .reassurance-card {
+            background: rgba(230, 168, 182, 0.05); border: 1px solid rgba(230, 168, 182, 0.15);
+            border-radius: 20px; padding: 25px; margin-bottom: 5rem;
+            text-align: center; backdrop-filter: blur(10px); box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            position: relative; overflow: hidden;
+        }
+        .reassurance-card::before { content: '✨'; position: absolute; top: 10px; right: 15px; font-size: 0.8rem; opacity: 0.5; }
+        .reassurance-title { color: var(--accent-color); font-size: 1.1rem; font-weight: 500; margin-bottom: 10px; }
+        .reassurance-text { color: var(--text-dim); font-size: 1.05rem; font-weight: 300; line-height: 1.6; }
+
+        /* Live Counters */
+        .counters-container { display: flex; flex-direction: column; gap: 3rem; margin-bottom: 6rem; }
+        .counter-wrapper { text-align: center; }
+        .counter-title { font-size: 1rem; color: var(--text-main); margin-bottom: 15px; font-weight: 400; line-height: 1.4; }
+        .counter-date { display: block; font-size: 0.85rem; color: var(--accent-color); font-weight: 300; opacity: 0.8; margin-top: 5px; }
+        .counter-box {
+            display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            padding: 15px 25px; border-radius: 20px; backdrop-filter: blur(12px);
+            font-size: 1.2rem; font-weight: 500; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .pulse-colon { animation: blink 1s infinite; color: var(--accent-color); font-weight: 700; margin: 0 2px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Memory Text Cards */
+        .memory-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-right: 2px solid var(--accent-color); border-radius: 15px 5px 5px 15px;
+            padding: 30px 25px; margin-bottom: 4rem; backdrop-filter: blur(8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative;
+        }
+        .chat-bubble {
+            background: rgba(18, 68, 41, 0.6); border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 18px; border-radius: 18px 18px 0 18px; display: inline-block;
+            margin-bottom: 20px; font-size: 0.95rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); right: 0;
+        }
+        .memory-text { font-size: 1.05rem; font-weight: 300; color: var(--text-dim); }
+        .moonlight-spotlight { border-right-color: transparent; box-shadow: inset 0 0 50px var(--rose-glow), 0 10px 30px rgba(0,0,0,0.4); }
+
+        /* Folded Photo Cards */
+        .photo-card {
+            background: var(--glass-bg); border: 1px solid var(--glass-border);
+            border-radius: 20px; margin-bottom: 4rem; padding: 0;
+            backdrop-filter: blur(8px); box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            cursor: pointer; position: relative; overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .photo-cover {
+            padding: 25px; text-align: center; color: var(--accent-color);
+            font-weight: 300; font-size: 1.1rem; letter-spacing: 1px;
+            background: rgba(255,255,255,0.01); transition: all 0.6s ease;
+            border-bottom: 1px solid transparent; display: flex; align-items: center; justify-content: center;
+        }
+        .photo-card:hover .photo-cover { background: rgba(255,255,255,0.04); }
+        .photo-content {
+            max-height: 0; opacity: 0; overflow: hidden;
+            transition: max-height 0.8s ease, opacity 0.8s ease; padding: 0 20px;
+        }
+        .photo-wrapper {
+            border-radius: 15px; overflow: hidden; margin-top: 15px; 
+            border: 1px solid rgba(255,255,255,0.05); position: relative;
+        }
+        .photo-wrapper img {
+            width: 100%; display: block; filter: brightness(0.8); 
+            transition: transform 1.5s ease, filter 1.5s ease; object-fit: cover;
+        }
+        .photo-caption {
+            text-align: center; font-size: 1rem; color: var(--accent-color);
+            font-weight: 300; font-style: italic; margin: 20px 0; min-height: 1.5em; line-height: 1.6;
+        }
+        .typing-cursor { animation: blinkCursor 0.8s infinite; color: var(--text-main); font-weight: bold; }
+        @keyframes blinkCursor { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Active Photo Card State */
+        .photo-card.active { box-shadow: 0 15px 40px rgba(0,0,0,0.4), inset 0 0 30px rgba(224, 153, 169, 0.1); padding-bottom: 15px; }
+        .photo-card.active .photo-cover { background: transparent; border-bottom: 1px dashed var(--glass-border); opacity: 0.4; padding: 15px; font-size: 0.9rem; }
+        .photo-card.active .photo-content { max-height: 800px; opacity: 1; }
+        .photo-card.active .photo-wrapper img { transform: scale(1.03); filter: brightness(1.05); }
+
+        /* Random Message Button & Final Scene */
+        .btn-random {
+            display: block; width: 100%; padding: 18px; margin: 5rem 0 2rem;
+            background: transparent; border: 1px solid var(--accent-color);
+            color: var(--text-main); font-family: inherit; font-size: 1.1rem; font-weight: 400;
+            border-radius: 40px; cursor: pointer; transition: all 0.4s ease; backdrop-filter: blur(5px);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn-random:hover { background: var(--rose-glow); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        #random-message-box {
+            min-height: 100px; text-align: center; font-size: 1.1rem;
+            color: var(--accent-color); font-weight: 300; margin-bottom: 6rem; padding: 0 20px;
+        }
+
+        .unwritten-chapter {
+            height: 40vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; background: radial-gradient(circle, var(--glass-bg), transparent);
+            border-radius: 30px; border: 1px dashed var(--glass-border);
+            color: var(--text-dim); font-weight: 300; font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="voice-note" src="my-voice.mp3"></audio>
+
+    <div id="sky-canvas"></div>
+
+    <div id="auth-screen">
+        <p class="auth-text" id="auth-hint">في مكان بعيد عن كل الناس… في حكاية لسه بتتكتب يا حسناء </p>
+        <input type="password" id="password-input" placeholder="اول ما عيونك شافت النور" inputmode="numeric">
+        <div id="welcome-name">حسنائي</div>
+    </div>
+
+    <main id="main-experience">
+        
+        <div id="secret-star-wrapper" onclick="playSecretVoice()">
+            <div id="secret-star" title="رسالة سرية"></div>
+
+<span class="secret-label" id="secret-label">اضغطي هنا</span>
+
+        </div>
+
+        <section class="reassurance-card fade-in" id="live-reassurance-card">
+            <h2 class="reassurance-title" id="reassurance-title"></h2>
+            <p class="reassurance-text" id="reassurance-text"></p>
+        </section>
+
+        <section class="counters-container fade-in">
+            <div class="counter-wrapper">
+                <h3 class="counter-title">
+                    من يوم ما دخلتي حياتي
+                    <span class="counter-date">2 أكتوبر 2025</span>
+                </h3>
+                <div class="counter-box" id="counter-1">00<span class="pulse-colon">:</span>00<span class="pulse-colon">:</span>00<span class="pulse-colon">:</span>00</div>
+            </div>
+            <div class="counter-wrapper">
+                <h3 class="counter-title">
+                    من أول مرة قلتلك بحبك
+                    <span class="counter-date">2 ديسمبر 2025</span>
+                </h3>
+                <div class="counter-box" id="counter-2">00<span class="pulse-colon">:</span>00<span class="pulse-colon">:</span>00<span class="pulse-colon">:</span>00</div>
+            </div>
+        </section>
+
+        <article class="memory-card fade-in">
+            <div class="chat-bubble">لو سمحتي ممكن رابط جروب مادة سيكولوجية نمو العاديين و الدمجيين</div>
+            <p class="memory-text">كانت أول رسالة بينا  كانت مجرد رسالة... لكنها كانت البداية التي غيّرت شكل أيامي، وجعلت من هذا التاريخ ميلاداً لروحي.</p>
+        </article>
+
+        <article class="photo-card fade-in" onclick="togglePhoto(this)">
+            <div class="photo-cover">
+                <span>✨ ♥️ ✨</span>
+            </div>
+            <div class="photo-content">
+                <div class="photo-wrapper">
+                    <img src="photo1.jpg" alt="ذكرى 1">
+                </div>
+                <div class="photo-caption" id="caption1"></div>
+            </div>
+        </article>
+
+        <article class="memory-card fade-in">
+            <p class="memory-text">عندما بداتي الاطمئنان و حين أخبرتني أنكِ تشعرين بالأمان والهدوء معي... أدركت حينها أنني وجدت غايتي في هذه الحياة: أن أكون الملجأ الذي ترتاح فيه روحكِ من ضجيج العالم</p>
+        </article>
+
+        <article class="photo-card fade-in" onclick="togglePhoto(this)">
+            <div class="photo-cover">
+                <span>✨ ♥️ ✨</span>
+            </div>
+            <div class="photo-content">
+                <div class="photo-wrapper">
+                    <img src="photo2.jpg" alt="ذكرى 2">
+                </div>
+                <div class="photo-caption" id="caption2"></div>
+            </div>
+        </article>
+
+        <article class="memory-card moonlight-spotlight fade-in">
+            <p class="memory-text">أول لقاء حقيقي... بين يدي رواية "لأنها كيارا"، وبين ضلوعي قلب ينبض لكِ وحدكِ. عيناكِ في ذلك اليوم كانتا أجمل قصة قرأتها.</p>
+        </article>
+
+        <article class="memory-card fade-in">
+            <p class="memory-text">كل ليلة،في بداية قصتنا اللتي الفتها من اجلك و حين تُطوى الصفحات وتُحكى  قبل النوم... أدرك أن أجمل حكاية أعيشها هي أنتِ. همسات الليل معكِ هي طقوسي التي لا أكتفي منها.</p>
+        </article>
+
+        <section class="fade-in">
+            <button class="btn-random" onclick="generateRandomMessage()">اقرأي لما تشتاقيلي</button>
+            <div id="random-message-box"></div>
+        </section>
+
+        <footer class="unwritten-chapter fade-in">
+            الفصل القادم... يُكتب غداً، وبعد غد، وإلى الأبد.
+        </footer>
+
+    </main>
+
+    <script>
+        // --- 1. بناء السماء والنجوم المتلألئة ---
+        const SkyEngine = {
+            init() {
+                const canvas = document.getElementById('sky-canvas');
+                for (let i = 0; i < 50; i++) {
+                    let star = document.createElement('div');
+                    star.className = 'star';
+                    star.style.width = Math.random() * 3 + 'px';
+                    star.style.height = star.style.width;
+                    star.style.left = Math.random() * 100 + 'vw';
+                    star.style.top = Math.random() * 100 + 'vh';
+                    star.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    star.style.animationDelay = Math.random() * 2 + 's';
+                    canvas.appendChild(star);
+                }
+                setInterval(this.shootStar, 5000);
+            },
+            shootStar() {
+                const canvas = document.getElementById('sky-canvas');
+                let sStar = document.createElement('div');
+                sStar.className = 'shooting-star';
+                sStar.style.left = Math.random() * 100 + 'vw';
+                canvas.appendChild(sStar);
+                setTimeout(() => sStar.remove(), 2500);
+            }
+        };
+
+        // --- 2. إدارة بوابة الدخول والوقت ---
+        const AppCore = {
+            init() {
+                this.setupAuth();
+            },
+            setupAuth() {
+                const input = document.getElementById('password-input');
+                const screen = document.getElementById('auth-screen');
+                const main = document.getElementById('main-experience');
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        if (input.value === '232003') {
+                            document.getElementById('auth-hint').style.display = 'none';
+                            input.style.display = 'none';
+                            document.getElementById('welcome-name').style.display = 'block';
+                            
+                            setTimeout(() => {
+                                screen.style.opacity = '0';
+                                setTimeout(() => {
+                                    screen.style.display = 'none';
+                                    main.style.display = 'block';
+                                    setTimeout(() => main.style.opacity = '1', 100);
+                                    this.startExperience();
+                                }, 2000);
+                            }, 3500);
+                        } else {
+                            input.classList.add('shake');
+                            setTimeout(() => input.classList.remove('shake'), 400);
+                            input.value = '';
+                        }
+                    }
+                });
+            },
+            startExperience() {
+                this.setTimeReassurance();
+                this.initScrollObserver();
+                CountersEngine.start();
+            },
+            setTimeReassurance() {
+                const hour = new Date().getHours();
+                const rTitle = document.getElementById('reassurance-title');
+                const rText = document.getElementById('reassurance-text');
+                
+                if (hour >= 5 && hour < 17) {
+                    rTitle.innerText = "صباحي أنتِ يا حسنائي..";
+                    rText.innerText = "أتمنى أن يكون يومكِ لطيف وحنون زي قلبكِ. ابتسمي، و خلي بالك من نفسك ، وتذكري ديما أني جمبك بدعواتي في كل خطوة وموجود دائماً من أجلكِ.";
+                } else {
+                    rTitle.innerText = "مساء الأمان لروحكِ يا حسنائي..";
+                    rText.innerText = "عارف أن اليوم  كان طويل ومتعب، لكنكِ دلوقت  هنا في مساحتكِ الآمنة. استرخي، طيفي يحرسكِ، وتأكدي أنكِ مش وحدكِ أبداً.. تصبحين على طمأنينة تشبهكِ.";
+                    document.body.style.backgroundColor = "#010002"; 
+                }
+            },
+
+            initScrollObserver() {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            
+                            // السطر الجديد: إذا وصل لآخر الموقع (المشهد الختامي)، أظهر الكلمة السرية
+                            if (entry.target.classList.contains('unwritten-chapter')) {
+                                document.getElementById('secret-label').classList.add('show');
+                            }
+                        }
+                    });
+                }, { threshold: 0.1 });
+                document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+            }
+
+        };
+
+        // --- 3. محرك العدادات الزمنية ---
+        const CountersEngine = {
+            date1: new Date('2025-10-02T00:00:00').getTime(),
+            date2: new Date('2025-12-02T00:00:00').getTime(),
+            start() {
+                this.update();
+                setInterval(() => this.update(), 1000);
+            },
+            format(start) {
+                let diff = new Date().getTime() - start;
+                if(diff < 0) diff = 0; 
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                const p = '<span class="pulse-colon">:</span>';
+                const pad = (n) => n < 10 ? '0'+n : n;
+                return `${days}${p}${pad(hours)}${p}${pad(mins)}${p}${pad(secs)}`;
+            },
+            update() {
+                document.getElementById('counter-1').innerHTML = this.format(this.date1);
+                document.getElementById('counter-2').innerHTML = this.format(this.date2);
+            }
+        };
+
+        // --- 4. التفاعلات الخاصة (الصور المنطوية، الرسائل، الصوت) ---
+        
+        let typeTimeoutId = null; // متغير لحفظ حالة الكتابة ومنع التداخل
+
+        function togglePhoto(card) {
+            const captionId = card.querySelector('.photo-caption').id;
+            const captionEl = document.getElementById(captionId);
+
+            // حالة الإغلاق
+            if (card.classList.contains('active')) {
+                card.classList.remove('active');
+                clearTimeout(typeTimeoutId);
+                captionEl.innerHTML = ""; 
+            } 
+            // حالة الفتح
+            else {
+                // إغلاق أي بطاقة أخرى مفتوحة
+                document.querySelectorAll('.photo-card').forEach(c => {
+                    if (c !== card) {
+                        c.classList.remove('active');
+                        c.querySelector('.photo-caption').innerHTML = "";
+                    }
+                });
+
+                card.classList.add('active');
+                
+                let textToWrite = captionId === "caption1" 
+                    ? "وبين ملامح هذه الأعين، يختبئ جزء من روحي." 
+                    : "كل الأماكن التي جمعتنا، أصبحت وطناً لي.";
+
+                // تأخير الكتابة حتى تكتمل حركة نزول البطاقة
+                setTimeout(() => startTypewriter(captionEl, textToWrite, card), 600);
+            }
+        }
+
+        function startTypewriter(element, text, cardElement) {
+            clearTimeout(typeTimeoutId); // تفريغ أي أوامر كتابة سابقة
+            element.innerHTML = ""; 
+            let i = 0;
+            
+            function typeChar() {
+                if (cardElement.classList.contains('active')) {
+                    if (i < text.length) {
+                        element.innerHTML = text.substring(0, i + 1) + "<span class='typing-cursor'>|</span>";
+                        i++;
+                        typeTimeoutId = setTimeout(typeChar, 70);
+                    } else {
+                        element.innerHTML = text; // إزالة المؤشر النهائي
+                    }
+                }
+            }
+            typeChar();
+        }
+
+        const loveMessages = [
+            "حتى في غيابي، روحي تعانق روحكِ.. أنتِ الأمان الذي أهرب إليه من ضجيج هذا العالم.",
+            "لو كان لي أن أختار وطناً، لاخترت عينيكِ.. ولو كان لي أن أختار عمراً، لاخترت أن أعيشه كله معكِ.",
+            "كلما اشتقتِ إليّ، ضعي يدكِ على قلبكِ.. أنا هناك، في كل نبضة تنطق باسمكِ يا حسنائي.",
+            "أنتِ لستِ مجرد حبيبة، أنتِ الجزء الأرقّ والأحنّ في روحي، النور الذي أضاء كل عتمة في أيامي.",
+            "لو جمعت كل كلمات الحب في كل اللغات، لن تكفي لوصف رجفة قلبي حين نظرت في عينيكِ لأول مرة.",
+            "المسافات لا تعني شيئاً حين تكونين أنتِ من يسكن عقلي وقلبي في كل ثانية."
+        ];
+
+        let randomTypeTimeout;
+        function generateRandomMessage() {
+            const box = document.getElementById('random-message-box');
+            clearTimeout(randomTypeTimeout);
+            box.innerHTML = '';
+            const msg = loveMessages[Math.floor(Math.random() * loveMessages.length)];
+            let i = 0;
+            
+            function type() {
+                if (i < msg.length) {
+                    box.innerHTML += msg.charAt(i);
+                    i++;
+                    randomTypeTimeout = setTimeout(type, 60);
+                }
+            }
+            type();
+        }
+
+        function playSecretVoice() {
+            const voiceNote = document.getElementById('voice-note');
+            voiceNote.currentTime = 0;
+            voiceNote.play().catch(e => console.log("الصوت جاهز للعمل عند التفاعل"));
+            
+            const star = document.getElementById('secret-star');
+            star.style.background = "var(--accent-color)";
+            voiceNote.onended = () => { star.style.background = "#fff"; };
+        }
+
+        // --- تشغيل المحركات عند تحميل الصفحة ---
+        window.onload = () => {
+            SkyEngine.init();
+            AppCore.init();
+        };
+    </script>
+</body>
+</html>
